@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import api from "../services/api";
 import toast from "react-hot-toast";
+import AccountCard from "../components/AccountCard";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   const [balances, setBalances] = useState({});
   const [loading, setLoading] = useState(false);
@@ -145,225 +148,34 @@ export default function Dashboard() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 justify-items-center">
+
           {accounts.map((acc) => (
-            <div
-  key={acc._id}
-  className="
-    group
-    bg-white/10
-    backdrop-blur-xl
-    p-6
-    rounded-3xl
-    border
-    border-white/10
-    w-[320px]
-    shadow-lg
-    transition-all
-    duration-300
-    hover:scale-105
-    hover:border-green-400/30
-    hover:shadow-green-500/20
-    hover:bg-white/15
-    cursor-pointer
-  "
->
 
-  <div className="flex items-center justify-between mb-6">
+            <AccountCard
+              key={acc._id}
+              acc={acc}
+              balance={balances[acc._id] || 0}
+            />
 
-    <div>
-      <h2 className="
-        text-2xl
-        font-bold
-        text-white
-        group-hover:text-green-400
-        transition-all
-      ">
-        {acc.currency} Account
-      </h2>
-
-      <p className="text-sm text-gray-400 mt-1">
-        Personal Banking
-      </p>
-    </div>
-
-    <div className="
-      w-14
-      h-14
-      rounded-full
-      bg-green-500/20
-      flex
-      items-center
-      justify-center
-      text-green-400
-      text-2xl
-      font-bold
-      group-hover:rotate-12
-      transition-all
-    ">
-      ₹
-    </div>
-
-  </div>
-
-  <div className="mb-6">
-
-    <p className="text-gray-400 text-sm mb-2">
-      Available Balance
-    </p>
-
-    <h1 className="
-      text-4xl
-      font-bold
-      text-green-400
-      tracking-wide
-    ">
-      ₹ {balances[acc._id] || 0}
-    </h1>
-
-  </div>
-
-  <div className="flex items-center justify-between mb-5">
-
-    <span className="text-gray-400">
-      Status
-    </span>
-
-    <span className={`
-      px-3
-      py-1
-      rounded-full
-      text-sm
-      font-semibold
-      ${
-        acc.status === "ACTIVE"
-          ? "bg-green-500/20 text-green-400"
-          : "bg-red-500/20 text-red-400"
-      }
-    `}>
-      {acc.status}
-    </span>
-
-  </div>
-
-  <div className="
-    border-t
-    border-white/10
-    pt-4
-  ">
-
-    <p className="text-gray-500 text-xs mb-2">
-      Account ID
-    </p>
-
-    <p className="
-      text-xs
-      break-all
-      text-gray-300
-      group-hover:text-white
-      transition-all
-    ">
-      {acc._id}
-    </p>
-
-  </div>
-
-</div>
           ))}
+
         </div>
 
-        {user?.systemUser && (
-          <div className="mt-16">
+        <div className="grid md:grid-cols-3 gap-6 justify-items-center">
 
-            <h1 className="text-4xl font-bold mb-8 text-center">
-              All User Accounts
-            </h1>
+          {allAccounts.map((acc) => (
 
-            <div className="grid md:grid-cols-3 gap-6 justify-items-center">
+            <AccountCard
+              key={acc._id}
+              acc={acc}
+              balance={acc.balance}
+              showUserInfo={true}
+              showTransactions={false}
+            />
 
-              {allAccounts.map((acc) => (
+          ))}
 
-                <div
-                  key={acc._id}
-                  className="group bg-white/10 backdrop-blur-xl border border-white/10 p-6 rounded-3xl w-[320px] shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-green-500/20 hover:border-green-400/30 hover:bg-white/15 cursor-pointer"
-                >
-
-                  <div className="flex items-center justify-between mb-5">
-
-                    <div>
-                      <h2 className="text-2xl font-bold text-white group-hover:text-green-400 transition-all">
-                        {acc.user?.name}
-                      </h2>
-
-                      <p className="text-gray-400 text-sm">
-                        {acc.user?.email}
-                      </p>
-                    </div>
-
-                    <div className=" w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xl font-bold group-hover:rotate-12 transition-all">
-                      ₹
-                    </div>
-
-                  </div>
-
-                  <div className="space-y-3">
-
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">
-                        Balance
-                      </span>
-
-                      <span className="text-green-400 font-bold text-xl">
-                        ₹ {acc.balance}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">
-                        Currency
-                      </span>
-
-                      <span className="text-white">
-                        {acc.currency}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">
-                        Status
-                      </span>
-
-                      <span className={`
-                        font-semibold
-                        ${
-                          acc.status === "ACTIVE"
-                            ? "text-green-400"
-                            : "text-red-400"
-                        }
-                      `}>
-                        {acc.status}
-                    </span>
-                    </div>
-
-                  </div>
-
-                  <div className=" mt-6 pt-4 border-t border-white/10">
-
-                    <p className="text-gray-500 text-xs mb-2">
-                      Account ID
-                    </p>
-
-                    <p className=" text-xs break-all text-gray-300 group-hover:text-white transition-all">
-                      {acc._id}
-                    </p>
-
-                  </div>
-
-                </div>
-              ))}
-
-            </div>
-          </div>
-        )}
+        </div>
 
         <div className="mt-14 bg-white/10 backdrop-blur-lg border border-white/10 p-8 rounded-3xl max-w-2xl mx-auto shadow-2xl">
           <h2 className="text-3xl font-bold mb-6">

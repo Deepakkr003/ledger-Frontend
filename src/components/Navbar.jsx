@@ -14,7 +14,11 @@ export default function Navbar() {
 
   return (
     <div className="flex justify-between items-center p-5 bg-black text-white shadow-lg">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <h1
+        onClick={() => navigate("/dashboard")}
+        className=" text-2xl font-bold cursor-pointer hover:text-green-400 transition-all">
+        Dashboard
+      </h1>
 
       <button
         onClick={logout}
