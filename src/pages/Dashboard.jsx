@@ -69,57 +69,80 @@ export default function Dashboard() {
 
   const sendMoney = async (e) => {
 
-  e.preventDefault();
+    e.preventDefault();
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
+    try {
 
-    const payload = {
-      ...transaction,
-      amount: Number(transaction.amount),
-      idempotencyKey: Date.now().toString(),
-    };
+      const payload = {
+        ...transaction,
+        amount: Number(transaction.amount),
+        idempotencyKey: Date.now().toString(),
+      };
 
-    if (user?.systemUser) {
+      if (user?.systemUser) {
 
-      await api.post(
-        "/transactions/system/initial-funds",
-        {
-          toAccount: transaction.toAccount,
-          amount: Number(transaction.amount),
-          idempotencyKey: Date.now().toString(),
-        }
+        await api.post(
+          "/transactions/system/initial-funds",
+          {
+            toAccount: transaction.toAccount,
+            amount: Number(transaction.amount),
+            idempotencyKey: Date.now().toString(),
+          }
+        );
+
+      } else {
+
+        await api.post(
+          "/transactions",
+          payload
+        );
+      }
+
+      toast.success("Transaction Successful");
+
+      fetchAccounts();
+
+      setTransaction({
+        fromAccount: "",
+        toAccount: "",
+        amount: "",
+      });
+
+    } catch (err) {
+
+      toast.error(
+        err.response?.data?.message || "Transaction Failed"
       );
 
-    } else {
-
-      await api.post(
-        "/transactions",
-        payload
-      );
+    } finally {
+      setLoading(false);
     }
 
-    toast.success("Transaction Successful");
+  };
 
-    fetchAccounts();
+  const updateAccountStatus = async (
+    accountId,
+    status
+  ) => {
 
-    setTransaction({
-      fromAccount: "",
-      toAccount: "",
-      amount: "",
-    });
+    try {
 
-  } catch (err) {
+      await api.patch(`/accounts/status/${accountId}`, { status });
 
-    toast.error(
-      err.response?.data?.message || "Transaction Failed"
-    );
+      toast.success(`Account ${status}`);
 
-  } finally {
-    setLoading(false);
-  }
-};
+      fetchAllAccounts();
+
+    } catch (err) {
+
+      toast.error(
+        err.response?.data?.message ||
+        "Failed to update account"
+      );
+    }
+  };
 
   useEffect(() => {
   fetchAccounts();
@@ -171,6 +194,8 @@ export default function Dashboard() {
               balance={acc.balance}
               showUserInfo={true}
               showTransactions={false}
+              isSystemUser={true}
+              updateAccountStatus={updateAccountStatus}
             />
 
           ))}

@@ -1,13 +1,47 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import ConfirmModal from "./ConfirmModel";
 
 export default function AccountCard({
   acc,
   balance,
   showTransactions = true,
   showUserInfo = false,
+  isSystemUser = false,
+  updateAccountStatus,
 }) {
 
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const [selectedStatus, setSelectedStatus] = useState("");
+
+  const [confirmMessage, setConfirmMessage] = useState("");
+
+
+
   const navigate = useNavigate();
+
+  const handleStatusChange = (
+    status,
+    message
+  ) => {
+
+    setSelectedStatus(status);
+
+    setConfirmMessage(message);
+
+    setShowConfirm(true);
+  };
+
+  const confirmStatusChange = () => {
+
+    updateAccountStatus(
+      acc._id,
+      selectedStatus
+    );
+
+    setShowConfirm(false);
+  };
 
   return (
 
@@ -140,43 +174,15 @@ export default function AccountCard({
 
       )}
 
-      {showConfirm && (
-
-        <div className=" fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-
-          <div className=" bg-gray-900 border border-white/10 p-8 rounded-3xl w-[400px] shadow-2xl animate-in">
-
-            <h2 className=" text-2xl font-bold text-white mb-4 ">
-              Confirm Action
-            </h2>
-
-            <p className="text-gray-300 mb-8">
-              {confirmMessage}
-            </p>
-
-            <div className=" flex justify-end gap-4 ">
-
-              <button
-                onClick={() =>
-                  setShowConfirm(false)
-                }
-                className=" px-5 py-2 rounded-xl bg-gray-700 hover:bg-gray-600 transition-all">
-                Cancel
-              </button>
-
-              <button
-                onClick={confirmStatusChange}
-                className=" px-5 py-2 rounded-xl bg-red-500 hover:bg-red-600 transition-all ">
-                Confirm
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      )}
+      <ConfirmModal
+        show={showConfirm}
+        title="Confirm Action"
+        message={confirmMessage}
+        onConfirm={confirmStatusChange}
+        onCancel={() =>
+          setShowConfirm(false)
+        }
+      />
 
     </div>
   );
